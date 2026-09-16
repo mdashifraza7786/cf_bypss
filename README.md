@@ -4,7 +4,23 @@ A lightweight PHP-based reverse proxy designed to forward incoming web requests 
 
 ---
 
-## 1. Overview
+## 1. Project Structure
+
+```text
+├── .htaccess                   # Web server routing rules (redirects all requests to proxy script)
+├── cookie.txt                  # Stores session/authentication cookies in Netscape format
+├── <your_script_name>.php      # Main reverse proxy logic (contains target domain & cookie placeholders)
+└── README.md                   # Documentation and setup instructions
+```
+
+### File Details:
+- **`.htaccess`**: Ensures all incoming paths/routes are directed through the proxy script and protects sensitive files like `cookie.txt` from direct public download.
+- **`cookie.txt`**: Plain text file storing valid Netscape-formatted cookies (e.g., exported from browser after login).
+- **`<your_script_name>.php`**: Intercepts requests, forwards them using cURL with realistic browser fingerprinting, applies cookies, and rewrites URLs in responses.
+
+---
+
+## 2. Overview
 
 This script acts as an intermediary between a client browser and a target web service:
 - **Request Interception:** Captures incoming HTTP requests (GET, POST, PUT, etc.) along with parameters and headers.
@@ -14,9 +30,9 @@ This script acts as an intermediary between a client browser and a target web se
 
 ---
 
-## 2. Configuration
+## 3. Configuration
 
-Open the script and configure the placeholders defined at the top:
+Open your PHP proxy file and configure the placeholders defined at the top:
 
 ```php
 // Target Domain & Scheme
@@ -37,7 +53,7 @@ $cookieDomain = 'mysite.com';
 
 ---
 
-## 3. Cookie Setup
+## 4. Cookie Setup
 
 The script reads cookies from a Netscape-formatted `cookie.txt` file located in the same directory.
 
@@ -50,20 +66,20 @@ The script reads cookies from a Netscape-formatted `cookie.txt` file located in 
 ### Netscape Format Structure:
 ```text
 # Domain	Include subdomains	Path	Secure	Expiration	Name	Value
-.example.com	TRUE	/	TRUE	1773660000	cf_clearance	sample_token_here
-.example.com	TRUE	/	TRUE	1773660000	session_id	sample_session_here
+.example.com	TRUE	/	TRUE	1893456000	cf_clearance	sample_token_here
+.example.com	TRUE	/	TRUE	1893456000	session_id	sample_session_here
 ```
 
 > **Note:** The script will automatically filter out expired cookies and only include cookies matching `$cookieDomain` or `$targetDomain`.
 
 ---
 
-## 4. How to Run
+## 5. How to Run
 
 ### Local Testing (PHP Built-in Server)
 You can start a local development server using:
 ```bash
-php -S localhost:8000 <script-name>.php
+php -S localhost:8000 <your_script_name>.php
 ```
 Then visit `http://localhost:8000` in your web browser.
 
@@ -71,23 +87,24 @@ Then visit `http://localhost:8000` in your web browser.
 Direct all incoming traffic to the proxy script:
 
 - **Apache (`.htaccess`):**
+  Ensure the placeholder in `.htaccess` points to your script file name:
   ```apache
   RewriteEngine On
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ <script-name>.php [QSA,L]
+  RewriteRule ^(.*)$ <your_script_name>.php [QSA,L]
   ```
 
 - **Nginx:**
   ```nginx
   location / {
-      try_files $uri $uri/ /<script-name>.php?$query_string;
+      try_files $uri $uri/ /<your_script_name>.php?$query_string;
   }
   ```
 
 ---
 
-## 5. Key Features
+## 6. Key Features
 
 - **Dynamic URL Rewriting:** Automatically replaces target domain links inside HTML, CSS, JavaScript, and HTTP headers with the proxy host.
 - **Browser Fingerprinting:** Matches Chrome 131 HTTP headers, `sec-ch-ua` attributes, TLS v1.2/v1.3, and standard cipher suites to prevent bot detection.
@@ -96,7 +113,7 @@ Direct all incoming traffic to the proxy script:
 
 ---
 
-## 6. Common Issues & Solutions
+## 7. Common Issues & Solutions
 
 | Issue | Cause | Solution |
 | :--- | :--- | :--- |
