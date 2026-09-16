@@ -1,0 +1,13 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Block direct public access to sensitive files like cookie.txt
+    RewriteRule ^cookie\.txt$ - [F,L,NC]
+    RewriteRule ^\.htaccess$ - [F,L,NC]
+
+    # Route all requests to the file where your code is located
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ YOUR_PHP_FILE_NAME_HERE.php [QSA,L]
+</IfModule>
